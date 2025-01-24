@@ -4,7 +4,10 @@
 #include <ew/external/glad.h>
 #include "ew/shader.h"
 #include "ew/model.h"
+#include "ew/transform.h"
 #include "ew/camera.h"
+#include "ew/cameraController.h"
+#include "ew/texture.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -14,12 +17,17 @@
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 GLFWwindow* initWindow(const char* title, int width, int height);
 void drawUI();
+void resetCamera(ew::Camera* camera, ew::CameraController* controller);
 
 //Global state
 int screenWidth = 1080;
 int screenHeight = 720;
 float prevFrameTime;
 float deltaTime;
+
+ew::Transform monkeyTransform;
+ew::Camera camera;
+ew::CameraController cameraController;
 
 int main() {
 	GLFWwindow* window = initWindow("Assignment 0", screenWidth, screenHeight);
@@ -29,13 +37,14 @@ int main() {
 	glEnable(GL_BACK);//back face culling
 	glEnable(GL_DEPTH_TEST);//depth testing
 
+	GLuint brickTexture = ew::loadTexture("assets/brick_color.jpg");
+
 	//create a shader from fragment and vertex shaders
 	ew::Shader shader = ew::Shader("assets/lit.vert", "assets/lit.frag");
 	ew::Model monkeyModel = ew::Model("assets/suzanne.obj");
 	//load model ^
 
 	//create a camera
-	ew::Camera camera;
 	camera.position = glm::vec3(0.0f, 0.0f, 5.0f);
 	camera.target - glm::vec3(0.0f, 0.0f, 0.0f);//look at the center of the scene
 	camera.aspectRatio = (float)screenWidth / screenHeight;
@@ -48,13 +57,23 @@ int main() {
 		deltaTime = time - prevFrameTime;
 		prevFrameTime = time;
 
+		cameraController.move(window, &camera, deltaTime);
+
 		//RENDER
 		glClearColor(0.6f,0.8f,0.92f,1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//clear backbuffer values
 
+		monkeyTransform.rotation = glm::rotate(monkeyTransform.rotation, deltaTime, glm::vec3(0.0, 1.0, 0.0));
+
+		/*glActiveTexture(GL_TEXTURE);//old style
+		glBindTexture(GL_TEXTURE_2D, brickTexture);*/
+
+		glBindTextureUnit(0, brickTexture);
+
 		shader.use();
-		shader.setMat4("_Model", glm::mat4(1.0f));
-		shader.setMat4("_ViewProjection", camera.projectionMatrix() * camera.viewMatrix() );
+		shader.setInt("_MainTex",0);
+		shader.setMat4("_Model", monkeyTransform.modelMatrix());
+		shader.setMat4("_ViewProjection", camera.projectionMatrix() * camera.viewMatrix());
 		monkeyModel.draw();
 
 		drawUI();
@@ -70,7 +89,11 @@ void drawUI() {
 	ImGui::NewFrame();
 
 	ImGui::Begin("Settings");
-	ImGui::Text("Add Controls Here!");
+	//ImGui::Text("Add Controls Here!");
+	if (ImGui::Button("Reset Camera")) 
+	{
+		resetCamera(&camera, &cameraController);
+	}
 	ImGui::End();
 
 	ImGui::Render();
@@ -119,3 +142,9 @@ GLFWwindow* initWindow(const char* title, int width, int height) {
 	return window;
 }
 
+void resetCamera(ew::Camera* camera, ew::CameraController* controller)
+{
+	camera->position = glm::vec3(0, 0, 5.0f);
+	camera->target - glm::vec3(0);
+	controller->yaw = controller->pitch = 0;
+}
