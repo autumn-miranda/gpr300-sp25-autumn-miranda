@@ -2,6 +2,9 @@
 #include <math.h>
 
 #include <ew/external/glad.h>
+#include "ew/shader.h"
+#include "ew/model.h"
+#include "ew/camera.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -21,6 +24,22 @@ float deltaTime;
 int main() {
 	GLFWwindow* window = initWindow("Assignment 0", screenWidth, screenHeight);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+	//set global vars
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BACK);//back face culling
+	glEnable(GL_DEPTH_TEST);//depth testing
+
+	//create a shader from fragment and vertex shaders
+	ew::Shader shader = ew::Shader("assets/lit.vert", "assets/lit.frag");
+	ew::Model monkeyModel = ew::Model("assets/suzanne.obj");
+	//load model ^
+
+	//create a camera
+	ew::Camera camera;
+	camera.position = glm::vec3(0.0f, 0.0f, 5.0f);
+	camera.target - glm::vec3(0.0f, 0.0f, 0.0f);//look at the center of the scene
+	camera.aspectRatio = (float)screenWidth / screenHeight;
+	camera.fov = 60.0f;//Vertical fov in degrees
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -31,7 +50,12 @@ int main() {
 
 		//RENDER
 		glClearColor(0.6f,0.8f,0.92f,1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//clear backbuffer values
+
+		shader.use();
+		shader.setMat4("_Model", glm::mat4(1.0f));
+		shader.setMat4("_ViewProjection", camera.projectionMatrix() * camera.viewMatrix() );
+		monkeyModel.draw();
 
 		drawUI();
 
