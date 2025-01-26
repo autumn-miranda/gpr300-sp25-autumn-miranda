@@ -74,6 +74,7 @@ int main() {
 		shader.setInt("_MainTex",0);
 		shader.setMat4("_Model", monkeyTransform.modelMatrix());
 		shader.setMat4("_ViewProjection", camera.projectionMatrix() * camera.viewMatrix());
+		shader.setVec3("_EyePos", camera.position);
 		monkeyModel.draw();
 
 		drawUI();
