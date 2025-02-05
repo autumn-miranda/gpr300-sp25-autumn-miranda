@@ -1,3 +1,4 @@
+//assignment 0
 #version 450
 //Vertex attributes
 layout(location = 0) in vec3 vPos; //Vertex position in model space

@@ -24,7 +24,11 @@ int screenWidth = 1080;
 int screenHeight = 720;
 float prevFrameTime;
 float deltaTime;
+
 unsigned int fbo;
+unsigned int dummyVAO;
+unsigned int textureColorbuffer;
+unsigned int textureDepthbuffer;
 
 ew::Transform monkeyTransform;
 ew::Camera camera;
@@ -50,6 +54,7 @@ int main() {
 
 	//create a shader from fragment and vertex shaders
 	ew::Shader shader = ew::Shader("assets/lit.vert", "assets/lit.frag");
+	ew::Shader screenShader = ew::Shader("assets1/post.vert", "assets1/post.frag");
 	ew::Model monkeyModel = ew::Model("assets/suzanne.obj");
 	//load model ^
 
@@ -59,6 +64,28 @@ int main() {
 	camera.aspectRatio = (float)screenWidth / screenHeight;
 	camera.fov = 60.0f;//Vertical fov in degrees
 
+	//dummy vao
+	glCreateVertexArrays(1, &dummyVAO);
+
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	glGenTextures(1, &textureColorbuffer);
+	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, screenWidth, screenHeight);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenTextures(1, &textureDepthbuffer);
+	glBindTexture(GL_TEXTURE_2D, textureDepthbuffer);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT, screenWidth, screenHeight);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, textureDepthbuffer, 0);
+
+	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 
@@ -66,45 +93,61 @@ int main() {
 		deltaTime = time - prevFrameTime;
 		prevFrameTime = time;
 
+		/* Practice Frame Buffer from tutorial
+		//create frame buffer
 		glGenFramebuffers(1, &fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
+		//create and attach texture
 		unsigned int texture;
 		glGenTextures(1, &texture);
 		glBindTexture(GL_TEXTURE_2D, texture);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		//target, attachment, textarget, texture, mipmap level
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0); 
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, texture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, texture, 0);
 
+		//assert that frame buffer was created correctly
 		assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 
+		//create a render buffer
+		unsigned int rbo;
+		glGenRenderbuffers(1, &rbo);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glDeleteFramebuffers(1, &fbo);
+		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screenWidth, screenHeight);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_COMPONENT, GL_RENDERBUFFER, rbo);
 
+		//glDeleteFramebuffers(1, &fbo);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
 
+		//draw as a wireframe
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		cameraController.move(window, &camera, deltaTime);
 
+		
+
 		//RENDER
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glNamedFramebufferDrawBuffer(fbo, GL_COLOR_ATTACHMENT0);//draw to custom frame buffer 
+		glNamedFramebufferDrawBuffer(fbo, GL_DEPTH_ATTACHMENT);
+		glEnable(GL_DEPTH_TEST);//depth testing
+		glDepthMask(GL_TRUE);
 		glClearColor(0.6f,0.8f,0.92f,1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//clear backbuffer values
 
 		monkeyTransform.rotation = glm::rotate(monkeyTransform.rotation, deltaTime, glm::vec3(0.0, 1.0, 0.0));
 
-		/*glActiveTexture(GL_TEXTURE);//old style
-		glBindTexture(GL_TEXTURE_2D, brickTexture);*/
-
 		glBindTextureUnit(0, brickTexture);
 
 		shader.use();
-		shader.setInt("_MainTex",0);
+		shader.setInt("_MainTex", 0);
 		shader.setMat4("_Model", monkeyTransform.modelMatrix());
 		shader.setMat4("_ViewProjection", camera.projectionMatrix() * camera.viewMatrix());
 		shader.setVec3("_EyePos", camera.position);
@@ -115,7 +158,17 @@ int main() {
 		monkeyModel.draw();
 
 
+		screenShader.use();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.6f, 0.09f, 0.92f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//glBindVertexArray(dummyVAO);
+		// Bind the texture we just rendered to for reading
+		glBindTextureUnit(0, textureColorbuffer);
+		glBindVertexArray(dummyVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
 		drawUI();
 
 		glfwSwapBuffers(window);
