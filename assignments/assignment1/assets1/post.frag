@@ -63,8 +63,8 @@ void main()
 	if(custom)
 	{
 	//_time is seconds since window was initialized
-		float d = mod(depth * 1.0 - _Time, 3.0) - 2.0;
-		d = step(0, d);
+		float d = mod(depth - _Time, 3.0) - 2.0;
+		d = step(0.25, d);
 		if(d==1){
 			for(int y = 0; y <= 2; y++){
 				for(int x = 0; x <= 2; x++){

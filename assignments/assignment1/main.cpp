@@ -28,7 +28,6 @@ float deltaTime;
 unsigned int fbo;
 unsigned int dummyVAO;
 unsigned int textureColorbuffer;
-//unsigned int textureDSbuffer;
 unsigned int depthBuffer;
 
 ew::Transform monkeyTransform;
@@ -85,22 +84,16 @@ int main() {
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, screenWidth, screenHeight);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//glBindTexture(GL_TEXTURE_2D, 0);
 
-	//Thank you to this tutorial for fixing my depth buffer
+
 //http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 	glGenRenderbuffers(1, &depthBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screenWidth, screenHeight);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
-	//glGenTextures(1, &textureDSbuffer);
-	/*glBindTexture(GL_TEXTURE_2D, textureDepthbuffer);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT, screenWidth, screenHeight);*/
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, screenWidth, screenHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
-	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, textureDSbuffer, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, screenWidth, screenHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
-	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, textureDSbuffer, 0);
 
 	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 
@@ -113,45 +106,10 @@ int main() {
 		deltaTime = time - prevFrameTime;
 		prevFrameTime = time;
 
-		/* Practice Frame Buffer from tutorial
-		//create frame buffer
-		glGenFramebuffers(1, &fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-		//create and attach texture
-		unsigned int texture;
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		//target, attachment, textarget, texture, mipmap level
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0); 
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, texture, 0);
-
-		//assert that frame buffer was created correctly
-		assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
-
-		//create a render buffer
-		unsigned int rbo;
-		glGenRenderbuffers(1, &rbo);
-
-		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screenWidth, screenHeight);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_COMPONENT, GL_RENDERBUFFER, rbo);
-
-		//glDeleteFramebuffers(1, &fbo);
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
-
 		//draw as a wireframe
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		cameraController.move(window, &camera, deltaTime);
-
-		
 
 		//RENDER
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
