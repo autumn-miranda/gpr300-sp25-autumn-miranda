@@ -41,6 +41,7 @@ void main(){
 	lightColor += _AmbientColor * _Material.Ka;
 	vec3 objectColor = texture(_MainTex, fs_in.TexCoord).rgb;
 	FragColor = vec4(objectColor * lightColor, 1.0);
+	gl_FragDepth = fs_in.WorldPos.z; 
 }
 
 

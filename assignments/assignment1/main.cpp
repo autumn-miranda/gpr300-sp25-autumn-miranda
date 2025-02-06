@@ -28,7 +28,8 @@ float deltaTime;
 unsigned int fbo;
 unsigned int dummyVAO;
 unsigned int textureColorbuffer;
-unsigned int textureDepthbuffer;
+//unsigned int textureDSbuffer;
+unsigned int depthBuffer;
 
 ew::Transform monkeyTransform;
 ew::Camera camera;
@@ -40,6 +41,15 @@ struct Material {
 	float Ks = 0.5;
 	float Shininess = 128;
 }material;
+
+//tutorial effects
+bool boxBlur;
+bool invert;
+
+//my effects
+bool sharpen;
+bool custom;
+bool edge;
 
 int main() {
 	GLFWwindow* window = initWindow("Assignment 1", screenWidth, screenHeight);
@@ -77,14 +87,24 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	//glBindTexture(GL_TEXTURE_2D, 0);
 
-	glGenTextures(1, &textureDepthbuffer);
-	glBindTexture(GL_TEXTURE_2D, textureDepthbuffer);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT, screenWidth, screenHeight);
+	//Thank you to this tutorial for fixing my depth buffer
+//http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
+	glGenRenderbuffers(1, &depthBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screenWidth, screenHeight);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+	//glGenTextures(1, &textureDSbuffer);
+	/*glBindTexture(GL_TEXTURE_2D, textureDepthbuffer);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT, screenWidth, screenHeight);*/
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, screenWidth, screenHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, textureDSbuffer, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, textureDepthbuffer, 0);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, textureDSbuffer, 0);
 
 	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -136,7 +156,7 @@ int main() {
 		//RENDER
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glNamedFramebufferDrawBuffer(fbo, GL_COLOR_ATTACHMENT0);//draw to custom frame buffer 
-		glNamedFramebufferDrawBuffer(fbo, GL_DEPTH_ATTACHMENT);
+		glNamedFramebufferDrawBuffer(fbo, GL_DEPTH_STENCIL_ATTACHMENT);
 		glEnable(GL_DEPTH_TEST);//depth testing
 		glDepthMask(GL_TRUE);
 		glClearColor(0.6f,0.8f,0.92f,1.0f);
@@ -159,13 +179,17 @@ int main() {
 
 
 		screenShader.use();
+		screenShader.setInt("shadeBlur", boxBlur);
+		screenShader.setInt("sharpen", sharpen);
+		screenShader.setInt("invert", invert);
+		screenShader.setInt("outline", edge);
+		screenShader.setInt("custom", custom);
+		screenShader.setFloat("_Time", time);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.6f, 0.09f, 0.92f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		//glBindVertexArray(dummyVAO);
-		// Bind the texture we just rendered to for reading
 		glBindTextureUnit(0, textureColorbuffer);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// Bind the texture we just rendered to for reading
 		glBindVertexArray(dummyVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -193,6 +217,15 @@ void drawUI() {
 		ImGui::SliderFloat("DiffuseK", &material.Kd, 0.0f, 1.0f);
 		ImGui::SliderFloat("SpecularK", &material.Ks, 0.0f, 1.0f);
 		ImGui::SliderFloat("Shininess", &material.Shininess, 2.0f, 1024.0f);
+	}
+	if (ImGui::CollapsingHeader("Post-Processing"))
+	{
+		ImGui::Checkbox("Box Blur", &boxBlur);
+		ImGui::Checkbox("Sharpen", &sharpen);
+		ImGui::Checkbox("Outline", &edge);
+		ImGui::Checkbox("Custom", &custom);
+
+		ImGui::Checkbox("Invert", &invert);
 	}
 	ImGui::End();
 
