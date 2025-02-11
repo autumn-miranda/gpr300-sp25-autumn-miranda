@@ -25,11 +25,6 @@ int screenHeight = 720;
 float prevFrameTime;
 float deltaTime;
 
-unsigned int fbo;
-unsigned int dummyVAO;
-unsigned int textureColorbuffer;
-unsigned int depthBuffer;
-
 ew::Transform monkeyTransform;
 ew::Camera camera;
 ew::CameraController cameraController;
@@ -40,6 +35,12 @@ struct Material {
 	float Ks = 0.5;
 	float Shininess = 128;
 }material;
+
+//framebuffer variables
+unsigned int fbo;
+unsigned int dummyVAO;
+unsigned int textureColorbuffer;
+unsigned int depthBuffer;
 
 //tutorial effects
 bool boxBlur;
@@ -58,10 +59,12 @@ int main() {
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BACK);//back face culling
 	glEnable(GL_DEPTH_TEST);//depth testing
+	glDepthMask(GL_TRUE);
 
 	GLuint brickTexture = ew::loadTexture("assets/brick_color.jpg");
 
 	//create a shader from fragment and vertex shaders
+	ew::Shader shadowShader = ew::Shader("assets1/shadow.vert", "assets1/shadow.frag");
 	ew::Shader shader = ew::Shader("assets/lit.vert", "assets/lit.frag");
 	ew::Shader screenShader = ew::Shader("assets1/post.vert", "assets1/post.frag");
 	ew::Model monkeyModel = ew::Model("assets/suzanne.obj");
@@ -72,6 +75,37 @@ int main() {
 	camera.target - glm::vec3(0.0f, 0.0f, 0.0f);//look at the center of the scene
 	camera.aspectRatio = (float)screenWidth / screenHeight;
 	camera.fov = 60.0f;//Vertical fov in degrees
+
+	/*Assignment 2 code*/
+	unsigned int depthMapFBO;
+	glGenFramebuffers(1, &depthMapFBO);
+
+	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+
+	unsigned int depthMap;
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//create lightProjection variables
+	float near_plane = 1.0f, far_plane = 7.5f;
+	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0, 4.0f, -1.0f),
+									  glm::vec3(0.0f, 0.0f, 0.0f),
+									  glm::vec3(0.0f, 1.0f, 0.0f)
+	);
+
+	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
 	//dummy vao
 	glCreateVertexArrays(1, &dummyVAO);
@@ -114,9 +148,7 @@ int main() {
 		//RENDER
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glNamedFramebufferDrawBuffer(fbo, GL_COLOR_ATTACHMENT0);//draw to custom frame buffer 
-		glNamedFramebufferDrawBuffer(fbo, GL_DEPTH_STENCIL_ATTACHMENT);
 		glEnable(GL_DEPTH_TEST);//depth testing
-		glDepthMask(GL_TRUE);
 		glClearColor(0.6f,0.8f,0.92f,1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//clear backbuffer values
 
@@ -145,9 +177,9 @@ int main() {
 		screenShader.setFloat("_Time", time);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.6f, 0.09f, 0.92f, 1.0f);
+		// Bind the texture we just rendered to for reading
 		glBindTextureUnit(0, textureColorbuffer);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		// Bind the texture we just rendered to for reading
 		glBindVertexArray(dummyVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -186,6 +218,17 @@ void drawUI() {
 		ImGui::Checkbox("Invert", &invert);
 	}
 	ImGui::End();
+
+	/*ImGui::Begin("Shadow Map");
+	//Using a Child allow to fill all the space of the window.
+	ImGui::BeginChild("Shadow Map");
+	//Stretch image to be window size
+	ImVec2 windowSize = ImGui::GetWindowSize();
+	//Invert 0-1 V to flip vertically for ImGui display
+	//shadowMap is the texture2D handle
+	ImGui::Image((ImTextureID)shadowMap, windowSize, ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::EndChild();
+	ImGui::End();*/
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
