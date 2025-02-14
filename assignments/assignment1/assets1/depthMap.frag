@@ -8,7 +8,7 @@ uniform sampler2D depthMap;
 
 void main()
 {
-	//gl_FragDepth = gl_FragCoord.z // this is what happens behind the scene
+	gl_FragDepth = gl_FragCoord.z;// this is what happens behind the scene
 
 	//render depthmap to a quad
 	float depthValue = texture(depthMap, TexCoords).r;

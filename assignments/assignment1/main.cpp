@@ -129,7 +129,7 @@ int main() {
 	//plane
 	float planeWidth = 100.0f;
 	float planeHeight = 100.0f;
-	int planeSubdivisions = 5;
+	int planeSubdivisions = 1;
 
 	//Create Shapes
 	ew::Mesh planeMesh(ew::createPlane(planeWidth, planeHeight, planeSubdivisions));
@@ -166,8 +166,6 @@ int main() {
 
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
-
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		shadowShader.use();
 		shadowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 		//glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
@@ -203,7 +201,7 @@ int main() {
 		shader.setVec3("lightPos", lightPos);
 		shader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-		shader.setInt("_MainTex", 0);
+		shader.setInt("diffuseTexture", 0);
 		shader.setInt("shadowMap", 1);
 		shader.setMat4("_Model", monkeyTransform.modelMatrix());
 		shader.setMat4("_ViewProjection", camera.projectionMatrix() * camera.viewMatrix());
