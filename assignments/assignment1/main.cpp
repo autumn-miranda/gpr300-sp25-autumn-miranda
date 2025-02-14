@@ -127,16 +127,16 @@ int main() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//plane
-	float planeWidth = 100.0f;
-	float planeHeight = 100.0f;
-	int planeSubdivisions = 1;
+	float planeWidth = 10.0f;
+	float planeHeight = 10.0f;
+	int planeSubdivisions = 4;
 
 	//Create Shapes
 	ew::Mesh planeMesh(ew::createPlane(planeWidth, planeHeight, planeSubdivisions));
 
 	ew::Transform planeTransform;
 	planeTransform.position.x = 1.5f;
-	planeTransform.position.y = -10.0f;
+	planeTransform.position.y = -2.0f;
 	planeTransform.position.z = 0.0f;
 
 

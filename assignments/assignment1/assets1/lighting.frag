@@ -47,7 +47,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 void main()
 {
 	//make sure fragment normal is still lenght 1 after interpolation
-	vec3 normal = normalize(fs_in.Normal);
+	/*vec3 normal = normalize(fs_in.Normal);
 	//light pointing straight down
 	vec3 toLight = -_LightDirection;
 	float diffuseFactor = max(dot(normal, toLight),0.0);
@@ -60,9 +60,9 @@ void main()
 	vec3 dsColor = _LightColor * (_Material.Kd * diffuseFactor + _Material.Ks * specularFactor);
 	//add some ambient light
 	vec3 ambient = _AmbientColor * _Material.Ka;
-	vec3 objectColor = texture(diffuseTexture, fs_in.TexCoords).rgb;
+	vec3 objectColor = texture(diffuseTexture, fs_in.TexCoords).rgb;*/
 	
-	/*vec3 color = texture(diffuseTexture, fs_in.TexCoords).rgb;
+	vec3 color = texture(diffuseTexture, fs_in.TexCoords).rgb;
 	vec3 normal = normalize(fs_in.Normal);
 	vec3 lightColor = vec3(1.0);
 	vec3 ambient = 0.15 * lightColor;
@@ -75,11 +75,11 @@ void main()
 	float spec = 0.0;
 	vec3 halfwayDir = normalize(lightDir + viewDir);
 	spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
-	vec3 specular = spec * lightColor;*/
+	vec3 specular = spec * lightColor;
 
 	float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
-	vec3 lighting = (ambient + (1.0 - shadow) * dsColor) * objectColor;
-	//vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
+	//vec3 lighting = (ambient + (1.0 - shadow) * dsColor) * objectColor;
+	vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;
 
 	FragColor = vec4(lighting, 1.0);
 }
