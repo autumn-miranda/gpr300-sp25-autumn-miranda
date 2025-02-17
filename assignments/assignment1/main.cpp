@@ -59,7 +59,7 @@ int main() {
 
 	//set global vars
 	glEnable(GL_CULL_FACE);
-	glEnable(GL_BACK);//back face culling
+	glCullFace(GL_BACK);//back face culling
 	glEnable(GL_DEPTH_TEST);//depth testing
 	glDepthMask(GL_TRUE);
 
@@ -93,6 +93,10 @@ int main() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
@@ -126,6 +130,14 @@ int main() {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+
+	ew::Mesh sphereMesh(ew::createSphere(1.5f,7));
+
+	ew::Transform sphereTransform;
+	sphereTransform.position.x = 2.3f;
+	sphereTransform.position.y = -2.0f;
+	sphereTransform.position.z = 0.5f;
+
 	//plane
 	float planeWidth = 10.0f;
 	float planeHeight = 10.0f;
@@ -138,6 +150,7 @@ int main() {
 	planeTransform.position.x = 1.5f;
 	planeTransform.position.y = -2.0f;
 	planeTransform.position.z = 0.0f;
+
 
 
 	while (!glfwWindowShouldClose(window)) {
@@ -172,9 +185,14 @@ int main() {
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
+		glCullFace(GL_FRONT);
 
 		shadowShader.setMat4("_Model", monkeyTransform.modelMatrix());
 		monkeyModel.draw();
+
+		glCullFace(GL_BACK);
+		shadowShader.setMat4("_Model", sphereTransform.modelMatrix());
+		sphereMesh.draw();
 		shadowShader.setMat4("_Model", planeTransform.modelMatrix());
 		planeMesh.draw();
 
@@ -187,7 +205,6 @@ int main() {
 		glEnable(GL_DEPTH_TEST);//depth testing
 		glClearColor(0.6f,0.8f,0.92f,1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//clear backbuffer values
-
 		
 
 		glBindTextureUnit(0, brickTexture);
@@ -203,14 +220,17 @@ int main() {
 
 		shader.setInt("diffuseTexture", 0);
 		shader.setInt("shadowMap", 1);
-		shader.setMat4("_Model", monkeyTransform.modelMatrix());
 		shader.setMat4("_ViewProjection", camera.projectionMatrix() * camera.viewMatrix());
 		shader.setVec3("_EyePos", camera.position);
 		shader.setFloat("_Material.Ka", material.Ka);
 		shader.setFloat("_Material.Kd", material.Kd);
 		shader.setFloat("_Material.Ks", material.Ks);
 		shader.setFloat("_Material.Shininess", material.Shininess);
+
+		shader.setMat4("_Model", monkeyTransform.modelMatrix());
 		monkeyModel.draw();
+		shader.setMat4("_Model", sphereTransform.modelMatrix());
+		sphereMesh.draw();
 		shader.setMat4("_Model", planeTransform.modelMatrix());
 		planeMesh.draw();
 
