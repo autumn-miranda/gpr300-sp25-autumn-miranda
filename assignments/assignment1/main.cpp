@@ -26,6 +26,15 @@ int screenHeight = 720;
 float prevFrameTime;
 float deltaTime;
 
+//vars for shadows
+float near_plane = 1.0f, far_plane = 10.0f;
+float lightPosX = -2.0f;
+float lightPosY = 4.0f;
+float lightPosZ = -1.0f;
+float minBias = 0.005;
+float maxBias = 0.015;
+
+
 ew::Transform monkeyTransform;
 ew::Camera camera;
 ew::CameraController cameraController;
@@ -131,7 +140,7 @@ int main() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-	ew::Mesh sphereMesh(ew::createSphere(1.5f,7));
+	ew::Mesh sphereMesh(ew::createSphere(1.5f,20));
 
 	ew::Transform sphereTransform;
 	sphereTransform.position.x = 2.3f;
@@ -167,36 +176,39 @@ int main() {
 
 		monkeyTransform.rotation = glm::rotate(monkeyTransform.rotation, deltaTime, glm::vec3(0.0, 1.0, 0.0));
 
-		glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
+		glm::vec3 lightPos(lightPosX, lightPosY, lightPosZ);
 		
 		//create lightProjection variables
-		float near_plane = 1.0f, far_plane = 7.5f;
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-		glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0, 4.0f, -1.0f),
-			glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::mat4 lightView = glm::lookAt(lightPos,
+			glm::vec3(0.0f, 0.0f, 0.0f),//look at center of the scene
 			glm::vec3(0.0f, 1.0f, 0.0f)
 		);
 
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
+		glDisable(GL_CULL_FACE);
+		
 		shadowShader.use();
 		shadowShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 		//glUniformMatrix4fv(lightSpaceMatrixLocation, 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		glCullFace(GL_FRONT);
-
 		shadowShader.setMat4("_Model", monkeyTransform.modelMatrix());
 		monkeyModel.draw();
 
+		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
+		//glCullFace(GL_BACK);
 		shadowShader.setMat4("_Model", sphereTransform.modelMatrix());
 		sphereMesh.draw();
 		shadowShader.setMat4("_Model", planeTransform.modelMatrix());
 		planeMesh.draw();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);//back face culling
 
 		//RENDER
 		glViewport(0, 0, screenWidth, screenHeight);
@@ -220,6 +232,8 @@ int main() {
 
 		shader.setInt("diffuseTexture", 0);
 		shader.setInt("shadowMap", 1);
+		shader.setFloat("minBias", minBias);
+		shader.setFloat("maxBias", maxBias);
 		shader.setMat4("_ViewProjection", camera.projectionMatrix() * camera.viewMatrix());
 		shader.setVec3("_EyePos", camera.position);
 		shader.setFloat("_Material.Ka", material.Ka);
@@ -274,6 +288,23 @@ void drawUI() {
 		ImGui::SliderFloat("DiffuseK", &material.Kd, 0.0f, 1.0f);
 		ImGui::SliderFloat("SpecularK", &material.Ks, 0.0f, 1.0f);
 		ImGui::SliderFloat("Shininess", &material.Shininess, 2.0f, 1024.0f);
+	}
+	if (ImGui::CollapsingHeader("Shadows"))
+	{
+		if (ImGui::Button("Reset Light"))
+		{
+			lightPosX = -2.0f;
+			lightPosY = 4.0f;
+			lightPosZ = -1.0f;
+		}
+		ImGui::SliderFloat("Min Bias", &minBias, 0.0f, 0.05f);
+		ImGui::SliderFloat("Max Bias", &maxBias, 0.0f, 0.05f);
+		ImGui::SliderFloat("Light X", &lightPosX, 0.0f, 20.0f);
+		ImGui::SliderFloat("Light Y", &lightPosY, 0.0f, 20.0f);
+		ImGui::SliderFloat("Light Z", &lightPosZ, -10.0f, 10.0f);
+		ImGui::SliderFloat("Near Plane", &near_plane, -10.0f, 5.0f);
+		ImGui::SliderFloat("Far Plane", &far_plane, 5.0f, 50.0f);
+
 	}
 	if (ImGui::CollapsingHeader("Post-Processing"))
 	{
