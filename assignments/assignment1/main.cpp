@@ -63,7 +63,7 @@ bool custom;
 bool edge;
 
 int main() {
-	GLFWwindow* window = initWindow("Assignment 1", screenWidth, screenHeight);
+	GLFWwindow* window = initWindow("Assignment 4", screenWidth, screenHeight);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
 	//set global vars
@@ -328,6 +328,38 @@ void drawUI() {
 	ImGui::EndChild();
 	ImGui::End();
 
+	ImGui::Begin("Animation");
+	if (ImGui::CollapsingHeader("Play Back"))
+	{
+		/*
+		ImGui::Checkbox("Playing", &isPlaying);
+		ImGui::Checkbox("Loop", &isLooping);
+
+		//ImGui::DragFloat is unbounded
+		ImGui::SliderFloat("Playback Speed", &playbackSpeed, 0.0f, 0.05f);
+		ImGui::SliderFloat("Playback Time", &playbackTime, 0.0f, 0.05f);
+		ImGui::SliderFloat("Duration", &duration, 0.0f, 0.05f);
+		*/
+	}
+	if (ImGui::CollapsingHeader("Position Keys"))
+	{
+		/*
+		if (ImGui::Button("Reset")){
+		//Do whatever
+		}
+		*/
+
+	}
+	if (ImGui::CollapsingHeader("Rotation Keys"))
+	{
+
+	}
+	if (ImGui::CollapsingHeader("Scale Keys"))
+	{
+
+	}
+	ImGui::End();
+
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -380,3 +412,29 @@ void resetCamera(ew::Camera* camera, ew::CameraController* controller)
 	camera->target - glm::vec3(0);
 	controller->yaw = controller->pitch = 0;
 }
+
+
+
+/*
+for (int i = 0; i < numLights; i++)
+{
+	ImGui::PushID(i);
+	if (ImGui::CollapsingHeader("Light")) {
+		ImGui::DragFloat3("Position", &lights[i].position.x, 0.1f);
+		ImGui::ColorEdit3("Color", &lights[i].color.x);
+	}
+	ImGui::PopID();
+}
+
+
+int currItem = 0;
+const char* itemNames[3]={
+  "Option A",
+  "Option B",
+  "Option C"
+}
+ImGui::Combo("My Enum",&currItem,itemNames,3);
+
+
+
+*/
