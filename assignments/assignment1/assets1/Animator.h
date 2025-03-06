@@ -1,21 +1,26 @@
 #pragma once
+#include "AnimationClip.h"
 //Responsible for playing back an animation.
-using namespace anm 
+namespace anm 
 {
 	class Animator {
 	public: 
 		AnimationClip* clip;
 		bool isPlaying;
-		float playBackSpeed;
+		float playbackSpeed;
 		bool isLooping;
-		float playBackTime;
+		float playbackTime;
 
-		void playAnimation();
 
-		void setPlayBackTime(float time) { playBackTime = time; };
+		void playAnimation(AnimationClip& animation, float deltaTime);
+		void calculatePlaybackTime(float maxDuration, float deltaTime);
+
+		void setPlayBackTime(float time) { playbackTime = (time >= 0)? time:0.f; };
+		void setPlayBackSpeed(float speed) { playbackSpeed = speed; };
 		void setPlaying(bool play) { isPlaying = play; };
-		void setPlaying(bool loop) { isLooping = loop; };
+		void setLooping(bool loop) { isLooping = loop; };
 	private: 
+		bool doneOnce = false;
 	};
-
+	// :) + :| + :(  
 }

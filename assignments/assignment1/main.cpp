@@ -10,6 +10,10 @@
 #include "ew/texture.h"
 #include "ew/procGen.h"
 
+#include "assets1/AnimationClip.h"
+#include "assets1/Animator.h"
+#include "assets1/Vec3Key.h"
+
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -38,6 +42,10 @@ float maxBias = 0.015;
 ew::Transform monkeyTransform;
 ew::Camera camera;
 ew::CameraController cameraController;
+
+
+anm::AnimationClip animation;
+anm::Animator animator;
 
 struct Material {
 	float Ka = 1.0;
@@ -160,6 +168,8 @@ int main() {
 	planeTransform.position.y = -2.0f;
 	planeTransform.position.z = 0.0f;
 
+	//Assignment 3 code
+	animation.setModel(&monkeyTransform);
 
 
 	while (!glfwWindowShouldClose(window)) {
@@ -174,7 +184,7 @@ int main() {
 
 		cameraController.move(window, &camera, deltaTime);
 
-		monkeyTransform.rotation = glm::rotate(monkeyTransform.rotation, deltaTime, glm::vec3(0.0, 1.0, 0.0));
+		//monkeyTransform.rotation = glm::rotate(monkeyTransform.rotation, deltaTime, glm::vec3(0.0, 1.0, 0.0));
 
 		glm::vec3 lightPos(lightPosX, lightPosY, lightPosZ);
 		
@@ -331,15 +341,15 @@ void drawUI() {
 	ImGui::Begin("Animation");
 	if (ImGui::CollapsingHeader("Play Back"))
 	{
-		/*
-		ImGui::Checkbox("Playing", &isPlaying);
-		ImGui::Checkbox("Loop", &isLooping);
+		
+		ImGui::Checkbox("Playing", &animator.isPlaying);
+		ImGui::Checkbox("Loop", &animator.isLooping);
 
 		//ImGui::DragFloat is unbounded
-		ImGui::SliderFloat("Playback Speed", &playbackSpeed, 0.0f, 0.05f);
-		ImGui::SliderFloat("Playback Time", &playbackTime, 0.0f, 0.05f);
-		ImGui::SliderFloat("Duration", &duration, 0.0f, 0.05f);
-		*/
+		ImGui::SliderFloat("Playback Speed", &animator.playbackSpeed, -5.0f, 5.0f);
+		ImGui::SliderFloat("Playback Time", &animator.playbackTime, -5.0f, 5.0f);
+		ImGui::SliderFloat("Duration", &animation.maxDuration, -5.0f, 5.0f);
+		
 	}
 	if (ImGui::CollapsingHeader("Position Keys"))
 	{
