@@ -23,6 +23,21 @@ namespace anm
 			value = newValue;
 		}
 
+		void setX(float x)
+		{
+			value.x = x;
+		}
+
+		void setY(float y)
+		{
+			value.y = y;
+		}
+
+		void setZ(float z)
+		{
+			value.z = z;
+		}
+
 		glm::vec3 getValue() 
 		{
 			return value;

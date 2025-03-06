@@ -18,9 +18,12 @@ namespace anm
 		ew::Transform* model;
 
 		void setKeysAtTime(float time);
-		void addKeyFrame(KeyFrame& theFrame, std::vector<KeyFrame> fArray);
+		void addKeyFrame(KeyFrame theFrame, std::vector<KeyFrame>& fArray);
+		void addKeyFrame(std::vector<KeyFrame>& fArray);
 
-		void removeKeyFrame(std::vector<KeyFrame> fArray);
+		void removeKeyFrame(std::vector<KeyFrame>& fArray);
+
+		void editFrame(std::vector<KeyFrame>& fArray, int index, float time, glm::vec3 val);
 
 		void findFramePos(float time);
 		void findFrameRot(float time);
@@ -33,11 +36,17 @@ namespace anm
 		KeyFrame getPrevScale() { return prevFrame[2]; };
 
 		void setModel(ew::Transform* transform) { model = transform; };
+		ew::Transform* getModel() { return model; };
 
 		float getDuration() { return maxDuration; };
-		std::vector<KeyFrame> getPosArray() { return positionKeys; };
-		std::vector<KeyFrame> getRotArray() { return rotationKeys; };
-		std::vector<KeyFrame> getScaleArray() { return scaleKeys; };
+		std::vector<KeyFrame>& getPosArray() { return positionKeys; };
+		std::vector<KeyFrame>& getRotArray() { return rotationKeys; };
+		std::vector<KeyFrame>& getScaleArray() { return scaleKeys; };
+
+
+		void clearPosArray() { positionKeys.clear(); };
+		void clearRotArray() { rotationKeys.clear(); };
+		void clearScaleArray() { scaleKeys.clear(); };
 
 
 	private:

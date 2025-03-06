@@ -1,5 +1,6 @@
 #pragma once
 #include "Animator.h"
+#include "ew/transform.h"
 
 namespace anm
 {
@@ -12,30 +13,30 @@ namespace anm
 		animation.setKeysAtTime(playbackTime);
 		
 		//interpolate between animation frames
-		
-
+		ew::Transform* model = animation.getModel();
+		model->position = animation.getNextPos().getValue();
 		
 	}
 
 	void Animator::calculatePlaybackTime(float maxDuration, float deltaTime)
 	{
 		deltaTime = deltaTime * playbackSpeed;
-		if (playbackTime + deltaTime > maxDuration)
+		float tempTime = playbackTime + deltaTime;
+		if (tempTime >= maxDuration)
 		{
 			if (isLooping)
 			{
-				int temp = playbackTime / maxDuration;
-				float tempTime = playbackTime - (temp * maxDuration);
+				tempTime = 0 + (maxDuration - tempTime);
 				setPlayBackTime(tempTime);
 				return;
 			}
 			setPlayBackTime(maxDuration);
 		}
-		else if (playbackTime + deltaTime < 0)
+		else if (tempTime < 0)
 		{
 			if(isLooping) 
 			{
-				float tempTime = maxDuration + (playbackTime + deltaTime);
+				tempTime = maxDuration + (tempTime);
 				setPlayBackTime(tempTime);
 				return;
 			}
@@ -44,7 +45,7 @@ namespace anm
 		}
 		else 
 		{
-			setPlayBackTime(playbackTime + deltaTime);
+			setPlayBackTime(tempTime);
 		}
 
 	}

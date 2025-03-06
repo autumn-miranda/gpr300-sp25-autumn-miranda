@@ -1,5 +1,6 @@
 #pragma once
 #include "AnimationClip.h"
+#include <algorithm>
 
 namespace anm
 {
@@ -12,8 +13,17 @@ namespace anm
 		findFrameScale(time);
 	}
 
-	void AnimationClip::addKeyFrame(KeyFrame& theFrame, std::vector<KeyFrame> fArray)
+	void AnimationClip::addKeyFrame(KeyFrame theFrame, std::vector<KeyFrame>& fArray)
 	{
+		if (theFrame.getTime() < 0) 
+		{
+			theFrame.setTime(0);
+		}
+		else if (theFrame.getTime() > maxDuration) 
+		{
+			theFrame.setTime(maxDuration);
+		}
+
 		//add the frame to the passed array
 		if (fArray.empty()) 
 		{
@@ -23,7 +33,7 @@ namespace anm
 
 		for(int i = 0; i < fArray.size(); i++) 
 		{
-			if (fArray[i].getTime() > theFrame.getTime()) 
+			if (fArray[i].getTime() > theFrame.getTime())
 			{
 				fArray.insert(fArray.begin() + i, theFrame);
 				return;
@@ -33,7 +43,12 @@ namespace anm
 		fArray.push_back(theFrame);
 	}
 
-	void AnimationClip::removeKeyFrame(std::vector<KeyFrame> fArray)
+	void AnimationClip::addKeyFrame(std::vector<KeyFrame>& fArray)
+	{
+		fArray.push_back(KeyFrame());
+	}
+
+	void AnimationClip::removeKeyFrame(std::vector<KeyFrame>& fArray)
 	{
 		//add the frame to the passed array
 		if (fArray.empty())
@@ -42,6 +57,20 @@ namespace anm
 		}
 
 		fArray.pop_back();
+	}
+
+	void AnimationClip::editFrame(std::vector<KeyFrame>& fArray, int index, float time, glm::vec3 val)
+	{
+		if (fArray.size() > 0) 
+		{
+			fArray[index].setTime(time);
+			fArray[index].setValue(val);
+
+			std::sort(fArray.begin(), fArray.end(), [](KeyFrame a, KeyFrame b)
+				{
+					return a.getTime() < b.getTime();
+				});
+		}
 	}
 
 

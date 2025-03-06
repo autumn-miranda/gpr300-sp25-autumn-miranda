@@ -181,6 +181,7 @@ int main() {
 
 		//draw as a wireframe
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		animator.playAnimation(animation, deltaTime);
 
 		cameraController.move(window, &camera, deltaTime);
 
@@ -347,17 +348,28 @@ void drawUI() {
 
 		//ImGui::DragFloat is unbounded
 		ImGui::SliderFloat("Playback Speed", &animator.playbackSpeed, -5.0f, 5.0f);
-		ImGui::SliderFloat("Playback Time", &animator.playbackTime, -5.0f, 5.0f);
-		ImGui::SliderFloat("Duration", &animation.maxDuration, -5.0f, 5.0f);
+		ImGui::SliderFloat("Playback Time", &animator.playbackTime, 0.0f, animation.maxDuration);
+		ImGui::SliderFloat("Duration", &animation.maxDuration, 0.0f, 10.0f);
 		
 	}
 	if (ImGui::CollapsingHeader("Position Keys"))
 	{
-		/*
 		if (ImGui::Button("Reset")){
-		//Do whatever
+			animation.clearPosArray();
 		}
-		*/
+		if (ImGui::Button("AddFrame")) {
+			animation.addKeyFrame(animation.getPosArray());
+		}
+
+		for (int i = 0; i < animation.getPosArray().size(); i++)
+		{
+			ImGui::PushID(i);
+			if (ImGui::CollapsingHeader("Position Key Frames")) {
+				/*ImGui::DragFloat3("Position", &animation.getPosArray()[i].getValue(), 0.1f);
+				ImGui::ColorEdit3("Color", &lights[i].color.x);*/
+			}
+			ImGui::PopID();
+		}
 
 	}
 	if (ImGui::CollapsingHeader("Rotation Keys"))
