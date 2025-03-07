@@ -7,6 +7,11 @@ namespace anm
 {
 	class KeyFrame {
 	public: 
+
+		float time;
+		glm::vec3 value;
+
+
 		KeyFrame()
 		{
 			time = 0;
@@ -56,7 +61,7 @@ namespace anm
 		//https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
 		glm::quat eulerToQuad(glm::vec3 euler)
 		{
-			return glm::quat(euler);
+			return glm::quat(glm::degrees(euler));
 		};
 
 		//https://www.devgem.io/posts/converting-quaternions-to-euler-angles-in-glm
@@ -66,8 +71,6 @@ namespace anm
 		};
 
 	private: 
-		float time;
-		glm::vec3 value;
 	};
 
 }

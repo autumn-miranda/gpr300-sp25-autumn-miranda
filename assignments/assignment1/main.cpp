@@ -354,31 +354,71 @@ void drawUI() {
 	}
 	if (ImGui::CollapsingHeader("Position Keys"))
 	{
-		if (ImGui::Button("Reset")){
+		if (ImGui::Button("Reset##pos")){
 			animation.clearPosArray();
+			animation.setModelPos(animation.modelDefaults.position);
 		}
-		if (ImGui::Button("AddFrame")) {
+		if (ImGui::Button("Add Frame##pos")) {
 			animation.addKeyFrame(animation.getPosArray());
+		}
+		if (ImGui::Button("Remove Frame##pos")) {
+			animation.removeKeyFrame(animation.getPosArray());
 		}
 
 		for (int i = 0; i < animation.getPosArray().size(); i++)
 		{
-			ImGui::PushID(i);
-			if (ImGui::CollapsingHeader("Position Key Frames")) {
-				/*ImGui::DragFloat3("Position", &animation.getPosArray()[i].getValue(), 0.1f);
-				ImGui::ColorEdit3("Color", &lights[i].color.x);*/
-			}
+			ImGui::PushID(i+"##pos");
+			ImGui::DragFloat("Time##pos", &animation.getPosArray()[i].time, 0.1f, 0.f, animation.maxDuration);
+			ImGui::DragFloat3("Position##pos", &animation.getPosArray()[i].value.x, 0.1f);
+			ImGui::Text("  ");
 			ImGui::PopID();
 		}
 
 	}
 	if (ImGui::CollapsingHeader("Rotation Keys"))
 	{
+		if (ImGui::Button("Reset##rot")) {
+			animation.clearRotArray();
+			animation.setModelRot(glm::degrees(glm::eulerAngles(animation.modelDefaults.rotation)));
+		}
+		if (ImGui::Button("Add Frame##rot")) {
+			animation.addKeyFrame(animation.getRotArray());
+		}
+		if (ImGui::Button("Remove Frame##rot")) {
+			animation.removeKeyFrame(animation.getRotArray());
+		}
 
+		for (int i = 0; i < animation.getRotArray().size(); i++)
+		{
+			ImGui::PushID(i+"##rot");
+			ImGui::DragFloat("Time##rot", &animation.getRotArray()[i].time, 0.1f, 0.f, animation.maxDuration);
+			ImGui::DragFloat3("Rotation##rot", &animation.getRotArray()[i].value.x, 0.1f);
+			ImGui::Text("  ");
+			ImGui::PopID();
+		}
 	}
 	if (ImGui::CollapsingHeader("Scale Keys"))
 	{
+		if (ImGui::Button("Reset##scale")) {
+			animation.clearScaleArray();
+			animation.setModelScale(animation.modelDefaults.scale);
 
+		}
+		if (ImGui::Button("Add Frame##scale")) {
+			animation.addKeyFrame(animation.getScaleArray());
+		}
+		if (ImGui::Button("Remove Frame##scale")) {
+			animation.removeKeyFrame(animation.getScaleArray());
+		}
+
+		for (int i = 0; i < animation.getScaleArray().size(); i++)
+		{
+			ImGui::PushID(i + "##scale");
+			ImGui::DragFloat("Time##scale", &animation.getScaleArray()[i].time, 0.1f, 0.f, animation.maxDuration);
+			ImGui::DragFloat3("Scale##scale", &animation.getScaleArray()[i].value.x, 0.1f, 0.1f, 10.f);
+			ImGui::Text("  ");
+			ImGui::PopID();
+		}
 	}
 	ImGui::End();
 

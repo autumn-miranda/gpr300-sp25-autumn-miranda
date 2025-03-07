@@ -10,11 +10,16 @@ namespace anm
 			return;
 
 		calculatePlaybackTime(animation.getDuration(), deltaTime);
+		animation.sortArray(animation.getPosArray());
+		animation.sortArray(animation.getRotArray());
+		animation.sortArray(animation.getScaleArray());
 		animation.setKeysAtTime(playbackTime);
 		
 		//interpolate between animation frames
 		ew::Transform* model = animation.getModel();
-		model->position = animation.getNextPos().getValue();
+		model->position = interpolatePos(animation.getPrevPos(), animation.getNextPos());
+		model->scale = interpolateScale(animation.getPrevScale(), animation.getNextScale());
+		model->rotation = interpolateRot(animation.getPrevRot(), animation.getNextRot());
 		
 	}
 
@@ -48,6 +53,40 @@ namespace anm
 			setPlayBackTime(tempTime);
 		}
 
+	}
+
+	glm::vec3 Animator::interpolatePos(KeyFrame& a, KeyFrame& b)
+	{
+		float t = (b.getTime() - playbackTime) / (b.getTime() - a.getTime());
+
+
+		return lerp(a.getValue(), b.getValue(), t, false);
+	}
+	glm::vec3 Animator::interpolateRot(KeyFrame& a, KeyFrame& b)
+	{
+		float t = (b.getTime() - playbackTime) / (b.getTime() - a.getTime());
+
+		return lerp(a.getValue(), b.getValue(), t, true);
+	}
+	glm::vec3 Animator::interpolateScale(KeyFrame& a, KeyFrame& b)
+	{
+		float t = (b.getTime() - playbackTime) / (b.getTime() - a.getTime());
+		return lerp(a.getValue(), b.getValue(), t, false);
+	}
+
+	glm::vec3 Animator::lerp(glm::vec3 a, glm::vec3 b, float t, bool isAngle) 
+	{
+		if (!isAngle) 
+		{
+			return a + ((b - a) * t);
+		}
+
+		glm::quat A = a;
+		glm::quat B = b;
+
+		glm::quat result = glm::slerp(A, B, t);
+
+		return glm::degrees(glm::eulerAngles(result));
 	}
 
 }

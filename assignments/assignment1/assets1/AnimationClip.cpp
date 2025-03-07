@@ -73,6 +73,17 @@ namespace anm
 		}
 	}
 
+	void AnimationClip::sortArray(std::vector<KeyFrame>& fArray)
+	{
+		if (fArray.size() > 1)
+		{
+			std::sort(fArray.begin(), fArray.end(), [](KeyFrame a, KeyFrame b)
+				{
+					return a.getTime() < b.getTime();
+				});
+		}
+	}
+
 
 	void AnimationClip::findFramePos(float time)
 	{
@@ -96,14 +107,19 @@ namespace anm
 
 			//if nextFrame is outside the array, just take the last element
 			nextFrame[0] = positionKeys[positionKeys.size() - 1];
-			prevFrame[0] = KeyFrame(time, model->position);
+			prevFrame[0] = positionKeys[positionKeys.size() - 1];
 		}
 		else 
 		{
-			nextFrame[0] = KeyFrame(maxDuration, model->position);
-			prevFrame[0] = KeyFrame(time, model->position);
+			nextFrame[0] = KeyFrame(maxDuration, modelDefaults.position);
+			prevFrame[0] = KeyFrame(0.0f, modelDefaults.position);
 		}
 	}
+
+
+
+
+
 	void AnimationClip::findFrameRot(float time)
 	{
 		glm::vec3 mRotation = glm::degrees(glm::eulerAngles(model->rotation));
@@ -131,8 +147,8 @@ namespace anm
 		}
 		else
 		{
-			nextFrame[1] = KeyFrame(maxDuration, mRotation);
-			prevFrame[1] = KeyFrame(time, mRotation);
+			nextFrame[1] = KeyFrame(maxDuration, glm::degrees(glm::eulerAngles(modelDefaults.rotation)));
+			prevFrame[1] = KeyFrame(time, glm::degrees(glm::eulerAngles(modelDefaults.rotation)));
 		}
 	}
 	void AnimationClip::findFrameScale(float time)
@@ -161,10 +177,9 @@ namespace anm
 		}
 		else
 		{
-			nextFrame[2] = KeyFrame(maxDuration, model->scale);
+			nextFrame[2] = KeyFrame(maxDuration, modelDefaults.scale);
 			prevFrame[2] = KeyFrame(time, model->scale);
 		}
 	}
-
 
 }	

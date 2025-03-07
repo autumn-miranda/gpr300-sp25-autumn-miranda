@@ -8,7 +8,7 @@ namespace anm
 {
 	class AnimationClip {
 	public:
-		float maxDuration;
+		float maxDuration = 5.0f;
 		std::vector<KeyFrame> positionKeys;
 		std::vector<KeyFrame> rotationKeys;//store as Euler angles
 		std::vector<KeyFrame> scaleKeys;
@@ -16,14 +16,15 @@ namespace anm
 		KeyFrame nextFrame[3];
 		KeyFrame prevFrame[3];
 		ew::Transform* model;
+		ew::Transform modelDefaults;
 
 		void setKeysAtTime(float time);
 		void addKeyFrame(KeyFrame theFrame, std::vector<KeyFrame>& fArray);
 		void addKeyFrame(std::vector<KeyFrame>& fArray);
-
 		void removeKeyFrame(std::vector<KeyFrame>& fArray);
 
 		void editFrame(std::vector<KeyFrame>& fArray, int index, float time, glm::vec3 val);
+		void sortArray(std::vector<KeyFrame>& fArray);
 
 		void findFramePos(float time);
 		void findFrameRot(float time);
@@ -35,8 +36,11 @@ namespace anm
 		KeyFrame getNextScale() { return nextFrame[2]; };
 		KeyFrame getPrevScale() { return prevFrame[2]; };
 
-		void setModel(ew::Transform* transform) { model = transform; };
+		void setModel(ew::Transform* transform) { model = transform; modelDefaults = *transform; };
 		ew::Transform* getModel() { return model; };
+		void setModelPos(glm::vec3 pos) { model->position = pos; };
+		void setModelRot(glm::vec3 rot) { model->rotation = rot; };
+		void setModelScale(glm::vec3 scale) { model->scale = scale; };
 
 		float getDuration() { return maxDuration; };
 		std::vector<KeyFrame>& getPosArray() { return positionKeys; };
@@ -47,7 +51,6 @@ namespace anm
 		void clearPosArray() { positionKeys.clear(); };
 		void clearRotArray() { rotationKeys.clear(); };
 		void clearScaleArray() { scaleKeys.clear(); };
-
 
 	private:
 	};
