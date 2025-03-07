@@ -21,6 +21,7 @@ namespace anm
 		void setKeysAtTime(float time);
 		void addKeyFrame(KeyFrame theFrame, std::vector<KeyFrame>& fArray);
 		void addKeyFrame(std::vector<KeyFrame>& fArray);
+		void addKeyFrame(std::vector<KeyFrame>& fArray, float time, glm::vec3 val);
 		void removeKeyFrame(std::vector<KeyFrame>& fArray);
 
 		void editFrame(std::vector<KeyFrame>& fArray, int index, float time, glm::vec3 val);

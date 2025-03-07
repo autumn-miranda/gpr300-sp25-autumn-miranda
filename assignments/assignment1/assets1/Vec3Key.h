@@ -15,7 +15,7 @@ namespace anm
 		KeyFrame()
 		{
 			time = 0;
-			value = glm::vec3(1.0, 1.0, 1.0);
+			value = glm::vec3(0.0, 0.0, 0.0);
 		}
 		KeyFrame(float t, glm::vec3 val)
 		{
@@ -63,13 +63,13 @@ namespace anm
 		};
 
 		//https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
-		glm::quat eulerToQuad(glm::vec3 euler)
+		glm::quat eulerToQuat(glm::vec3 euler)
 		{
-			return glm::quat(glm::degrees(euler));
+			return glm::quat(glm::radians(euler));
 		};
 
 		//https://www.devgem.io/posts/converting-quaternions-to-euler-angles-in-glm
-		glm::vec3 quadToEuler(glm::quat quaternion)
+		glm::vec3 quatToEuler(glm::quat quaternion)
 		{
 			return glm::degrees(glm::eulerAngles(quaternion));
 		};

@@ -48,6 +48,11 @@ namespace anm
 		fArray.push_back(KeyFrame());
 	}
 
+	void AnimationClip::addKeyFrame(std::vector<KeyFrame>& fArray, float time, glm::vec3 val)
+	{
+		fArray.push_back(KeyFrame(time, val));
+	}
+
 	void AnimationClip::removeKeyFrame(std::vector<KeyFrame>& fArray)
 	{
 		//add the frame to the passed array
@@ -136,7 +141,7 @@ namespace anm
 					}
 					else
 					{
-						prevFrame[1] = KeyFrame(time, mRotation);
+						prevFrame[1] = KeyFrame(time - 0.1f, mRotation);
 					}
 					return;
 				}
@@ -144,12 +149,13 @@ namespace anm
 
 			//if nextFrame is outside the array, just take the last element
 			nextFrame[1] = rotationKeys[rotationKeys.size() - 1];
+			nextFrame[1].setTime(maxDuration);
 			prevFrame[1] = KeyFrame(time, mRotation);
 		}
 		else
 		{
 			nextFrame[1] = KeyFrame(maxDuration, glm::degrees(glm::eulerAngles(modelDefaults.rotation)));
-			prevFrame[1] = KeyFrame(time, glm::degrees(glm::eulerAngles(modelDefaults.rotation)));
+			prevFrame[1] = KeyFrame(time - 0.1f, glm::degrees(glm::eulerAngles(modelDefaults.rotation)));
 		}
 	}
 	void AnimationClip::findFrameScale(float time)
@@ -166,7 +172,7 @@ namespace anm
 					}
 					else
 					{
-						prevFrame[2] = KeyFrame(time, model->scale);
+						prevFrame[2] = KeyFrame(time - 0.1f, model->scale);
 					}
 					return;
 				}
@@ -174,12 +180,13 @@ namespace anm
 
 			//if nextFrame is outside the array, just take the last element
 			nextFrame[2] = scaleKeys[scaleKeys.size() - 1];
+			nextFrame[2].setTime(maxDuration);
 			prevFrame[2] = KeyFrame(time, model->scale);
 		}
 		else
 		{
 			nextFrame[2] = KeyFrame(maxDuration, modelDefaults.scale);
-			prevFrame[2] = KeyFrame(time, model->scale);
+			prevFrame[2] = KeyFrame(time - 0.1f, model->scale);
 		}
 	}
 

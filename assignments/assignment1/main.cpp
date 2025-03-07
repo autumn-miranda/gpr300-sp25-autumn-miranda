@@ -35,8 +35,8 @@ float near_plane = 1.0f, far_plane = 10.0f;
 float lightPosX = -2.0f;
 float lightPosY = 4.0f;
 float lightPosZ = -1.0f;
-float minBias = 0.005;
-float maxBias = 0.015;
+float minBias = 0.005f;
+float maxBias = 0.015f;
 
 
 ew::Transform monkeyTransform;
@@ -359,7 +359,7 @@ void drawUI() {
 			animation.setModelPos(animation.modelDefaults.position);
 		}
 		if (ImGui::Button("Add Frame##pos")) {
-			animation.addKeyFrame(animation.getPosArray());
+			animation.addKeyFrame(animation.getPosArray(), animator.playbackTime, monkeyTransform.position);
 		}
 		if (ImGui::Button("Remove Frame##pos")) {
 			animation.removeKeyFrame(animation.getPosArray());
@@ -382,7 +382,7 @@ void drawUI() {
 			animation.setModelRot(glm::degrees(glm::eulerAngles(animation.modelDefaults.rotation)));
 		}
 		if (ImGui::Button("Add Frame##rot")) {
-			animation.addKeyFrame(animation.getRotArray());
+			animation.addKeyFrame(animation.getRotArray(), animator.playbackTime, eulerAngles(monkeyTransform.rotation));
 		}
 		if (ImGui::Button("Remove Frame##rot")) {
 			animation.removeKeyFrame(animation.getRotArray());
@@ -405,9 +405,7 @@ void drawUI() {
 
 		}
 		if (ImGui::Button("Add Frame##scale")) {
-			animation.addKeyFrame(animation.getScaleArray());
-			std::vector<anm::KeyFrame> scaleA = animation.getScaleArray();
-			animation.editFrame(scaleA, scaleA.size() - 1, scaleA[scaleA.size() - 1].getTime(), glm::vec3(1.0f, 1.0f, 1.0f));
+			animation.addKeyFrame(animation.getScaleArray(), animator.playbackTime, monkeyTransform.scale);
 		}
 		if (ImGui::Button("Remove Frame##scale")) {
 			animation.removeKeyFrame(animation.getScaleArray());

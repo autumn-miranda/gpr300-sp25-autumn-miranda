@@ -6,10 +6,10 @@ namespace anm
 	class Animator {
 	public: 
 		AnimationClip* clip;
-		bool isPlaying;
-		float playbackSpeed;
-		bool isLooping;
-		float playbackTime;
+		bool isPlaying = false;
+		float playbackSpeed = 1.0;
+		bool isLooping = false;
+		float playbackTime = 0.0;
 
 
 		void playAnimation(AnimationClip& animation, float deltaTime);

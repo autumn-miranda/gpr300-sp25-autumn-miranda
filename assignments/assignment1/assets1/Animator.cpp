@@ -90,7 +90,7 @@ namespace anm
 
 		glm::quat result = glm::slerp(A, B, t);
 
-		return glm::degrees(glm::eulerAngles(result));
+		return glm::eulerAngles(result);
 	}
 
 
@@ -102,11 +102,11 @@ namespace anm
 			return 0.0f;
 		}
 		else if (b < playbackTime) {
-			return 1.0 - ((playbackTime - b) / (playbackTime - a));
+			return 1.0f - ((playbackTime - b) / (playbackTime - a));
 		}
 		else
 		{
-			return 1.0 - ((b - playbackTime) / (b - a));
+			return 1.0f - ((b - playbackTime) / (b - a));
 		}
 	
 	}
