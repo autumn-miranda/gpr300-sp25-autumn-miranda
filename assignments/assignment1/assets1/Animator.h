@@ -15,7 +15,7 @@ namespace anm
 		void playAnimation(AnimationClip& animation, float deltaTime);
 		void calculatePlaybackTime(float maxDuration, float deltaTime);
 
-		void setPlayBackTime(float time) { playbackTime = (time >= 0)? time:0.f; };
+		void setPlayBackTime(float time) { playbackTime = (time >= 0)? time: 0.f; };
 		void setPlayBackSpeed(float speed) { playbackSpeed = speed; };
 		void setPlaying(bool play) { isPlaying = play; };
 		void setLooping(bool loop) { isLooping = loop; };
@@ -24,6 +24,7 @@ namespace anm
 		glm::vec3 interpolateRot(KeyFrame& a, KeyFrame& b);
 		glm::vec3 interpolateScale(KeyFrame& a, KeyFrame& b);
 		glm::vec3 lerp(glm::vec3 a, glm::vec3 b, float t, bool isAngle);
+		float findT(float a, float b);
 	private: 
 		bool doneOnce = false;
 	};

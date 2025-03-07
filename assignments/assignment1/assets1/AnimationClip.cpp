@@ -90,7 +90,7 @@ namespace anm
 		if (positionKeys.size() > 0) {
 			for (int i = 0; i < positionKeys.size(); i++)
 			{
-				if (positionKeys[i].getTime() >= time)
+				if (positionKeys[i].getTime() > time)
 				{
 					nextFrame[0] = positionKeys[i];
 					if (i > 0)
@@ -99,7 +99,7 @@ namespace anm
 					}
 					else
 					{
-						prevFrame[0] = KeyFrame(time, model->position);
+						prevFrame[0] = KeyFrame(time - 0.1f, model->position);
 					}
 					return;
 				}
@@ -107,6 +107,7 @@ namespace anm
 
 			//if nextFrame is outside the array, just take the last element
 			nextFrame[0] = positionKeys[positionKeys.size() - 1];
+			nextFrame[0].setTime(maxDuration);
 			prevFrame[0] = positionKeys[positionKeys.size() - 1];
 		}
 		else 

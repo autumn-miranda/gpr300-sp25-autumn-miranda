@@ -406,6 +406,8 @@ void drawUI() {
 		}
 		if (ImGui::Button("Add Frame##scale")) {
 			animation.addKeyFrame(animation.getScaleArray());
+			std::vector<anm::KeyFrame> scaleA = animation.getScaleArray();
+			animation.editFrame(scaleA, scaleA.size() - 1, scaleA[scaleA.size() - 1].getTime(), glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 		if (ImGui::Button("Remove Frame##scale")) {
 			animation.removeKeyFrame(animation.getScaleArray());

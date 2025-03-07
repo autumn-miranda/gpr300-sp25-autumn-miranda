@@ -31,7 +31,7 @@ namespace anm
 		{
 			if (isLooping)
 			{
-				tempTime = 0 + (maxDuration - tempTime);
+				tempTime = 0 + (tempTime - maxDuration);
 				setPlayBackTime(tempTime);
 				return;
 			}
@@ -41,7 +41,7 @@ namespace anm
 		{
 			if(isLooping) 
 			{
-				tempTime = maxDuration + (tempTime);
+				tempTime = maxDuration + tempTime;
 				setPlayBackTime(tempTime);
 				return;
 			}
@@ -57,36 +57,57 @@ namespace anm
 
 	glm::vec3 Animator::interpolatePos(KeyFrame& a, KeyFrame& b)
 	{
-		float t = (b.getTime() - playbackTime) / (b.getTime() - a.getTime());
-
-
+		float t = findT(a.getTime(), b.getTime());
+		
 		return lerp(a.getValue(), b.getValue(), t, false);
 	}
 	glm::vec3 Animator::interpolateRot(KeyFrame& a, KeyFrame& b)
 	{
-		float t = (b.getTime() - playbackTime) / (b.getTime() - a.getTime());
+		float t = findT(a.getTime(), b.getTime());
 
 		return lerp(a.getValue(), b.getValue(), t, true);
 	}
 	glm::vec3 Animator::interpolateScale(KeyFrame& a, KeyFrame& b)
 	{
-		float t = (b.getTime() - playbackTime) / (b.getTime() - a.getTime());
+		float t = findT(a.getTime(), b.getTime());
 		return lerp(a.getValue(), b.getValue(), t, false);
 	}
 
 	glm::vec3 Animator::lerp(glm::vec3 a, glm::vec3 b, float t, bool isAngle) 
 	{
+		assert(t >= 0);
+		if (t == 0.0f) 
+		{
+			return b;
+		}
 		if (!isAngle) 
 		{
 			return a + ((b - a) * t);
 		}
 
-		glm::quat A = a;
-		glm::quat B = b;
+		glm::quat A = glm::radians(a);
+		glm::quat B = glm::radians(b);
 
 		glm::quat result = glm::slerp(A, B, t);
 
 		return glm::degrees(glm::eulerAngles(result));
 	}
 
+
+	float Animator::findT(float a, float b) 
+	{
+		//assert(b >= a);
+		if (b == a || playbackTime == a)
+		{
+			return 0.0f;
+		}
+		else if (b < playbackTime) {
+			return 1.0 - ((playbackTime - b) / (playbackTime - a));
+		}
+		else
+		{
+			return 1.0 - ((b - playbackTime) / (b - a));
+		}
+	
+	}
 }

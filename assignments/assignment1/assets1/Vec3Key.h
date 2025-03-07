@@ -15,11 +15,11 @@ namespace anm
 		KeyFrame()
 		{
 			time = 0;
-			value = glm::vec3(0.0, 0.0, 0.0);
+			value = glm::vec3(1.0, 1.0, 1.0);
 		}
 		KeyFrame(float t, glm::vec3 val)
 		{
-			time = t;
+			setTime(t);
 			value = val;
 		}
 
@@ -51,6 +51,10 @@ namespace anm
 		void setTime(float playTime)
 		{
 			time = playTime;
+			if (time < 0) 
+			{
+				time = 0.0f;
+			}
 		}
 
 		float getTime()
