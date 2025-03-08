@@ -128,7 +128,7 @@ namespace anm
 
 	void AnimationClip::findFrameRot(float time)
 	{
-		glm::vec3 mRotation = glm::degrees(glm::eulerAngles(model->rotation));
+		glm::vec3 mRotation = glm::eulerAngles(model->rotation);
 		if (rotationKeys.size() > 0) {
 			for (int i = 0; i < rotationKeys.size(); i++)
 			{

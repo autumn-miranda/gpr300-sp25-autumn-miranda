@@ -36,9 +36,9 @@ namespace anm
 		{
 			return 1.0f - ((b - playback) / (b - a));
 		}
-
 	}
 
+	//https://easings.net/ 
 	float KeyFrame::easeInBack(float a, float b, float playback)
 	{
 		float x = abs(playback - a) / abs(b - a);

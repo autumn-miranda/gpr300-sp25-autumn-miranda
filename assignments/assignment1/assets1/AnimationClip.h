@@ -32,8 +32,10 @@ namespace anm
 		void findFrameScale(float time);
 		KeyFrame getNextPos() { return nextFrame[0]; };
 		KeyFrame getPrevPos() { return prevFrame[0]; };
+
 		KeyFrame getNextRot() { return nextFrame[1]; };
 		KeyFrame getPrevRot() { return prevFrame[1]; };
+
 		KeyFrame getNextScale() { return nextFrame[2]; };
 		KeyFrame getPrevScale() { return prevFrame[2]; };
 
