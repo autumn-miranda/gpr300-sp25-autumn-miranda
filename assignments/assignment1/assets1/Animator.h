@@ -24,9 +24,8 @@ namespace anm
 		glm::vec3 interpolateRot(KeyFrame& a, KeyFrame& b);
 		glm::vec3 interpolateScale(KeyFrame& a, KeyFrame& b);
 		glm::vec3 lerp(glm::vec3 a, glm::vec3 b, float t, bool isAngle);
-		float findT(float a, float b);
+		float findT(KeyFrame& a, KeyFrame& b);
 	private: 
-		bool doneOnce = false;
 	};
 	// :) + :| + :(  
 }

@@ -10,6 +10,7 @@ namespace anm
 
 		float time;
 		glm::vec3 value;
+		int easing = 0;
 
 
 		KeyFrame()
@@ -71,8 +72,16 @@ namespace anm
 		//https://www.devgem.io/posts/converting-quaternions-to-euler-angles-in-glm
 		glm::vec3 quatToEuler(glm::quat quaternion)
 		{
-			return glm::degrees(glm::eulerAngles(quaternion));
+			return glm::eulerAngles(quaternion);//will be in rad
 		};
+
+		//https://easings.net/ 
+		float selectFunction(int function, float a, float b, float playback);
+		float findT(float a, float b, float playback);
+		float easeInBack(float a, float b, float playback);
+		float easeOutBack(float a, float b, float playback);
+		float easeOutCubic(float a, float b, float playback);
+		float easeInElastic(float a, float b, float playback);
 
 	private: 
 	};

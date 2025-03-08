@@ -18,7 +18,9 @@ namespace anm
 		//interpolate between animation frames
 		ew::Transform* model = animation.getModel();
 		model->position = interpolatePos(animation.getPrevPos(), animation.getNextPos());
+
 		model->scale = interpolateScale(animation.getPrevScale(), animation.getNextScale());
+
 		model->rotation = interpolateRot(animation.getPrevRot(), animation.getNextRot());
 		
 	}
@@ -57,32 +59,28 @@ namespace anm
 
 	glm::vec3 Animator::interpolatePos(KeyFrame& a, KeyFrame& b)
 	{
-		float t = findT(a.getTime(), b.getTime());
+		float t = findT(a, b);
 		
 		return lerp(a.getValue(), b.getValue(), t, false);
 	}
 	glm::vec3 Animator::interpolateRot(KeyFrame& a, KeyFrame& b)
 	{
-		float t = findT(a.getTime(), b.getTime());
+		float t = findT(a, b);
 
 		return lerp(a.getValue(), b.getValue(), t, true);
 	}
 	glm::vec3 Animator::interpolateScale(KeyFrame& a, KeyFrame& b)
 	{
-		float t = findT(a.getTime(), b.getTime());
+		float t = findT(a, b);
 		return lerp(a.getValue(), b.getValue(), t, false);
 	}
 
 	glm::vec3 Animator::lerp(glm::vec3 a, glm::vec3 b, float t, bool isAngle) 
 	{
-		assert(t >= 0);
-		if (t == 0.0f) 
-		{
-			return b;
-		}
 		if (!isAngle) 
 		{
-			return a + ((b - a) * t);
+			//return a + ((b - a) * t);
+			return glm::mix(a, b, t);
 		}
 
 		glm::quat A = glm::radians(a);
@@ -94,20 +92,8 @@ namespace anm
 	}
 
 
-	float Animator::findT(float a, float b) 
+	float Animator::findT(KeyFrame& a, KeyFrame& b) 
 	{
-		//assert(b >= a);
-		if (b == a || playbackTime == a)
-		{
-			return 0.0f;
-		}
-		else if (b < playbackTime) {
-			return 1.0f - ((playbackTime - b) / (playbackTime - a));
-		}
-		else
-		{
-			return 1.0f - ((b - playbackTime) / (b - a));
-		}
-	
+		return a.selectFunction(a.easing, a.getTime(), b.getTime(), playbackTime);
 	}
 }

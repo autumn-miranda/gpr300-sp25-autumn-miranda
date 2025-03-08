@@ -104,7 +104,7 @@ namespace anm
 					}
 					else
 					{
-						prevFrame[0] = KeyFrame(time - 0.1f, model->position);
+						prevFrame[0] = KeyFrame(time - 0.0005f, model->position);
 					}
 					return;
 				}
@@ -141,7 +141,7 @@ namespace anm
 					}
 					else
 					{
-						prevFrame[1] = KeyFrame(time - 0.1f, mRotation);
+						prevFrame[1] = KeyFrame(time -0.0005f, mRotation);
 					}
 					return;
 				}
@@ -172,7 +172,7 @@ namespace anm
 					}
 					else
 					{
-						prevFrame[2] = KeyFrame(time - 0.1f, model->scale);
+						prevFrame[2] = KeyFrame(time - 0.0005f, model->scale);
 					}
 					return;
 				}

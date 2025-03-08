@@ -340,6 +340,8 @@ void drawUI() {
 	ImGui::End();
 
 	ImGui::Begin("Animation");
+
+
 	if (ImGui::CollapsingHeader("Play Back"))
 	{
 		
@@ -367,9 +369,18 @@ void drawUI() {
 
 		for (int i = 0; i < animation.getPosArray().size(); i++)
 		{
+			const char* itemNames[5] = {
+			  "Default##pos",
+			  "EaseInBack##pos",
+			  "EaseInElastic##pos",
+			  "EaseOutBack##pos",
+			  "EaseOutCubic##pos"
+			};
+
 			ImGui::PushID(i+"##pos");
 			ImGui::DragFloat("Time##pos", &animation.getPosArray()[i].time, 0.1f, 0.f, animation.maxDuration);
 			ImGui::DragFloat3("Position##pos", &animation.getPosArray()[i].value.x, 0.1f);
+			ImGui::Combo("Easing##pos", &animation.getPosArray()[i].easing, itemNames, 5);
 			ImGui::Text("  ");
 			ImGui::PopID();
 		}
@@ -390,9 +401,19 @@ void drawUI() {
 
 		for (int i = 0; i < animation.getRotArray().size(); i++)
 		{
+			const char* itemNames[5] = {
+			  "Default##rot",
+			  "EaseInBack##rot",
+			  "EaseInElastic##rot",
+			  "EaseOutBack##rot",
+			  "EaseOutCubic##rot"
+			};
+
+
 			ImGui::PushID(i+"##rot");
 			ImGui::DragFloat("Time##rot", &animation.getRotArray()[i].time, 0.1f, 0.f, animation.maxDuration);
 			ImGui::DragFloat3("Rotation##rot", &animation.getRotArray()[i].value.x, 0.1f);
+			ImGui::Combo("Easing##rot", &animation.getRotArray()[i].easing, itemNames, 5);
 			ImGui::Text("  ");
 			ImGui::PopID();
 		}
@@ -413,9 +434,19 @@ void drawUI() {
 
 		for (int i = 0; i < animation.getScaleArray().size(); i++)
 		{
+			const char* itemNames[5] = {
+			  "Default##scale",
+			  "EaseInBack##scale",
+			  "EaseInElastic##scale",
+			  "EaseOutBack##scale",
+			  "EaseOutCubic##scale"
+			};
+
+
 			ImGui::PushID(i + "##scale");
 			ImGui::DragFloat("Time##scale", &animation.getScaleArray()[i].time, 0.1f, 0.f, animation.maxDuration);
 			ImGui::DragFloat3("Scale##scale", &animation.getScaleArray()[i].value.x, 0.1f, 0.1f, 10.f);
+			ImGui::Combo("Easing##scale", &animation.getScaleArray()[i].easing, itemNames, 5);
 			ImGui::Text("  ");
 			ImGui::PopID();
 		}
