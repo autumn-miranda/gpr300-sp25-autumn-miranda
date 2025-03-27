@@ -13,6 +13,7 @@
 #include "assets1/AnimationClip.h"
 #include "assets1/Animator.h"
 #include "assets1/Vec3Key.h"
+#include "assets1/Skeleton.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -23,6 +24,9 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 GLFWwindow* initWindow(const char* title, int width, int height);
 void drawUI();
 void resetCamera(ew::Camera* camera, ew::CameraController* controller);
+
+void drawMonkeySkeleton(ew::Model* monkeyModel, ew::Transform* monkeyTransform, anm::Skeleton* monkeySkeleton);
+void createJointGUI(int i);
 
 //Global state
 int screenWidth = 1080;
@@ -40,6 +44,7 @@ float maxBias = 0.015f;
 
 
 ew::Transform monkeyTransform;
+anm::Skeleton* monkeySkeleton;
 ew::Camera camera;
 ew::CameraController cameraController;
 
@@ -71,7 +76,7 @@ bool custom;
 bool edge;
 
 int main() {
-	GLFWwindow* window = initWindow("Assignment 4", screenWidth, screenHeight);
+	GLFWwindow* window = initWindow("Forward Kinematics", screenWidth, screenHeight);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
 	//set global vars
@@ -171,6 +176,8 @@ int main() {
 	//Assignment 3 code
 	animation.setModel(&monkeyTransform);
 
+	monkeySkeleton = new anm::Skeleton(monkeyTransform);
+	
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -206,8 +213,14 @@ int main() {
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		shadowShader.setMat4("_Model", monkeyTransform.modelMatrix());
-		monkeyModel.draw();
+		//shadowShader.setMat4("_Model", monkeyTransform.modelMatrix());
+		//monkeyModel.draw();
+		for (anm::Skeleton::Joint j : monkeySkeleton->modelSkeleton)
+		{
+			monkeyTransform = j.getGlobalTransform();
+			shadowShader.setMat4("_Model", monkeyTransform.modelMatrix());
+			monkeyModel.draw();
+		}
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -252,8 +265,14 @@ int main() {
 		shader.setFloat("_Material.Ks", material.Ks);
 		shader.setFloat("_Material.Shininess", material.Shininess);
 
-		shader.setMat4("_Model", monkeyTransform.modelMatrix());
-		monkeyModel.draw();
+		//shader.setMat4("_Model", monkeyTransform.modelMatrix());
+		//monkeyModel.draw();
+		for (anm::Skeleton::Joint j : monkeySkeleton->modelSkeleton)
+		{
+			monkeyTransform = j.getGlobalTransform();
+			shader.setMat4("_Model", monkeyTransform.modelMatrix());
+			monkeyModel.draw();
+		}
 		shader.setMat4("_Model", sphereTransform.modelMatrix());
 		sphereMesh.draw();
 		shader.setMat4("_Model", planeTransform.modelMatrix());
@@ -453,6 +472,50 @@ void drawUI() {
 	}
 	ImGui::End();
 
+	ImGui::Begin("Skeleton");
+	createJointGUI(0);
+	/*for (int i = 0; i < 8; i++)
+	{
+		const char* label = const_cast<char*>(monkeySkeleton->jointNames[i].c_str());
+		if (ImGui::CollapsingHeader(label)) {
+			float tempPos[3] = { monkeySkeleton->modelSkeleton[i].localTransform.position.x,
+									monkeySkeleton->modelSkeleton[i].localTransform.position.y,
+									monkeySkeleton->modelSkeleton[i].localTransform.position.z
+			};
+
+			float tempRot[3] = { monkeySkeleton->modelSkeleton[i].localTransform.rotation.x,
+									monkeySkeleton->modelSkeleton[i].localTransform.rotation.y,
+									monkeySkeleton->modelSkeleton[i].localTransform.rotation.z
+			};
+
+			float tempScale[3] = { monkeySkeleton->modelSkeleton[i].localTransform.scale.x,
+									monkeySkeleton->modelSkeleton[i].localTransform.scale.y,
+									monkeySkeleton->modelSkeleton[i].localTransform.scale.z
+			};
+
+			ImGui::PushID(i + "##Joint");
+
+			if (ImGui::DragFloat3("Joint Position##i", tempPos, 0.1f)) 
+			{
+				monkeySkeleton->modelSkeleton[i].localTransform.position = glm::vec3(tempPos[0], tempPos[1], tempPos[2]);
+				monkeySkeleton->calcGlobalTransforms(i);
+			}
+			if (ImGui::DragFloat3("Joint Rotation##i", tempRot, 0.1f)) 
+			{
+				monkeySkeleton->modelSkeleton[i].localTransform.rotation = glm::vec3(tempRot[0], tempRot[1], tempRot[2]);
+				monkeySkeleton->calcGlobalTransforms(i);
+			}
+			if (ImGui::DragFloat3("Joint Scale##i", tempScale, 0.1f)) {
+				monkeySkeleton->modelSkeleton[i].localTransform.scale = glm::vec3(tempScale[0], tempScale[1], tempScale[2]);
+				monkeySkeleton->calcGlobalTransforms(i);
+			}
+
+			ImGui::Text("  ");
+			ImGui::PopID();
+		}
+	}*/
+	ImGui::End();
+
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -504,6 +567,63 @@ void resetCamera(ew::Camera* camera, ew::CameraController* controller)
 	camera->position = glm::vec3(0, 0, 5.0f);
 	camera->target - glm::vec3(0);
 	controller->yaw = controller->pitch = 0;
+}
+
+void drawMonkeySkeleton(ew::Model* monkeyModel, ew::Transform* monkeyTransform, anm::Skeleton* monkeySkeleton)
+{
+	for (anm::Skeleton::Joint j : monkeySkeleton->modelSkeleton) 
+	{
+		monkeyTransform = &j.getGlobalTransform();
+		monkeyModel->draw();
+	}
+}
+
+void createJointGUI(int i) 
+{
+	const char* label = const_cast<char*>(monkeySkeleton->jointNames[i].c_str());
+	if (ImGui::CollapsingHeader(label)) {
+		float tempPos[3] = { monkeySkeleton->modelSkeleton[i].localTransform.position.x,
+								monkeySkeleton->modelSkeleton[i].localTransform.position.y,
+								monkeySkeleton->modelSkeleton[i].localTransform.position.z
+		};
+
+		float tempRot[3] = { monkeySkeleton->modelSkeleton[i].localTransform.rotation.x,
+								monkeySkeleton->modelSkeleton[i].localTransform.rotation.y,
+								monkeySkeleton->modelSkeleton[i].localTransform.rotation.z
+		};
+
+		float tempScale[3] = { monkeySkeleton->modelSkeleton[i].localTransform.scale.x,
+								monkeySkeleton->modelSkeleton[i].localTransform.scale.y,
+								monkeySkeleton->modelSkeleton[i].localTransform.scale.z
+		};
+
+		ImGui::PushID(i + "##Joint");
+
+		if (ImGui::DragFloat3("Joint Position##i", tempPos, 0.1f))
+		{
+			monkeySkeleton->modelSkeleton[i].localTransform.position = glm::vec3(tempPos[0], tempPos[1], tempPos[2]);
+			monkeySkeleton->calcGlobalTransforms(i);
+		}
+		if (ImGui::DragFloat3("Joint Rotation##i", tempRot, 0.1f))
+		{
+			monkeySkeleton->modelSkeleton[i].localTransform.rotation = glm::vec3(tempRot[0], tempRot[1], tempRot[2]);
+			monkeySkeleton->calcGlobalTransforms(i);
+		}
+		if (ImGui::DragFloat3("Joint Scale##i", tempScale, 0.1f)) {
+			monkeySkeleton->modelSkeleton[i].localTransform.scale = glm::vec3(tempScale[0], tempScale[1], tempScale[2]);
+			monkeySkeleton->calcGlobalTransforms(i);
+		}
+
+
+		ImGui::Text("  ");
+		ImGui::PopID();
+
+		for (int child : monkeySkeleton->modelSkeleton[i].childIndex)
+		{
+			createJointGUI(child);
+		}
+
+	}
 }
 
 

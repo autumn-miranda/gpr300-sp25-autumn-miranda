@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <string>
 
 namespace ew {
 	struct Transform {
@@ -20,5 +21,11 @@ namespace ew {
 			m = glm::scale(m, scale);
 			return m;
 		}
+
+		/*std::string toString() 
+		{
+			std::string temp = "";
+			//temp += "(" + (int)position.x + "");
+		}*/
 	};
 }
