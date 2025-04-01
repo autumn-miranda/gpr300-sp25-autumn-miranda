@@ -587,10 +587,8 @@ void createJointGUI(int i)
 								monkeySkeleton->modelSkeleton[i].localTransform.position.z
 		};
 
-		float tempRot[3] = { monkeySkeleton->modelSkeleton[i].localTransform.rotation.x,
-								monkeySkeleton->modelSkeleton[i].localTransform.rotation.y,
-								monkeySkeleton->modelSkeleton[i].localTransform.rotation.z
-		};
+		glm::vec3 tempAngle = monkeySkeleton->modelSkeleton[i].getLocalAngle();
+		float tempRot[3] = { tempAngle.x, tempAngle.y, tempAngle.z };
 
 		float tempScale[3] = { monkeySkeleton->modelSkeleton[i].localTransform.scale.x,
 								monkeySkeleton->modelSkeleton[i].localTransform.scale.y,
@@ -606,7 +604,7 @@ void createJointGUI(int i)
 		}
 		if (ImGui::DragFloat3("Joint Rotation##i", tempRot, 0.1f))
 		{
-			monkeySkeleton->modelSkeleton[i].localTransform.rotation = glm::vec3(tempRot[0], tempRot[1], tempRot[2]);
+			monkeySkeleton->modelSkeleton[i].setLocalAngle(glm::vec3(tempRot[0], tempRot[1], tempRot[2]));
 			monkeySkeleton->calcGlobalTransforms(i);
 		}
 		if (ImGui::DragFloat3("Joint Scale##i", tempScale, 0.1f)) {
@@ -615,7 +613,11 @@ void createJointGUI(int i)
 		}
 
 
-		ImGui::Text("  ");
+		ImGui::Text(" Children: ");
+		for (int child : monkeySkeleton->modelSkeleton[i].childIndex)
+		{
+			ImGui::Text(monkeySkeleton->jointNames[child].c_str());
+		}
 		ImGui::PopID();
 
 		for (int child : monkeySkeleton->modelSkeleton[i].childIndex)
@@ -626,28 +628,3 @@ void createJointGUI(int i)
 	}
 }
 
-
-
-/*
-for (int i = 0; i < numLights; i++)
-{
-	ImGui::PushID(i);
-	if (ImGui::CollapsingHeader("Light")) {
-		ImGui::DragFloat3("Position", &lights[i].position.x, 0.1f);
-		ImGui::ColorEdit3("Color", &lights[i].color.x);
-	}
-	ImGui::PopID();
-}
-
-
-int currItem = 0;
-const char* itemNames[3]={
-  "Option A",
-  "Option B",
-  "Option C"
-}
-ImGui::Combo("My Enum",&currItem,itemNames,3);
-
-
-
-*/

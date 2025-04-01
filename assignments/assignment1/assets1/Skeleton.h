@@ -15,7 +15,20 @@ namespace anm
 			ew::Transform localTransform;
 			ew::Transform globalTransform;
 
+			glm::vec3 localAngle = glm::vec3(0.0f,0.0f,0.0f);
+
 			ew::Transform getGlobalTransform() { return globalTransform; };
+
+
+			void setLocalAngle(glm::vec3 degrees)
+			{
+				localTransform.rotation = glm::quat(glm::radians(degrees));
+				localAngle = degrees;
+			};
+			glm::vec3 getLocalAngle()
+			{
+				return localAngle;
+			}
 		};
 
 		ew::Transform skeletonTransform = modelSkeleton[0].globalTransform;
@@ -37,6 +50,7 @@ namespace anm
 		{
 			return skeletonTransform.modelMatrix();
 		};
+
 
 		void setParentIndex(int thisIndex, int parentIndex);
 

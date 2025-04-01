@@ -75,9 +75,13 @@ namespace anm
 	{
 		ew::Transform temp;
 
-		temp.position = gt.position + lt.position;
-		temp.rotation = gt.rotation + lt.rotation;
 		temp.scale = (gt.scale * lt.scale);
+
+		temp.rotation = gt.rotation * inverse(lt.rotation);
+		//https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
+		//rotated_point = origin + (orientation_quaternion * (point - origin));
+
+		temp.position = gt.position + ((temp.rotation) * lt.position);
 
 
 		return temp;
